@@ -13,3 +13,7 @@ zotero_sherpa.php now supports arguments provided as a query string in the forma
 
 Also works around some minor bugs in the Zotero API (or web interface, I can't tell which) that can cause unexpected, 
 arbitrarily nested json elements to cause the parent elements to be remove when saving in the zotero web interface.
+
+The provided (rather clunky) web interface expects a ` run_list.sh ` file to exist in the working directory of the application and is exicutable by the user that php runs as (normally the apache or nginx user). This file should contain one or more invocations of zotero_sherpa.php such as:
+
+` php zotero_sherpa [group/user id] [zotero key] [sherpa_romeo_key] [collection_type (user or group)] [limit] `
