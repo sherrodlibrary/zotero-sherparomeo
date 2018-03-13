@@ -1,7 +1,7 @@
 <?php
-require_once('Zend/Http/Client.php');
+//require_once('Zend/Http/Client.php');
+require_once 'vendor/autoload.php';
 require_once('Publisher.php');
-
 
 class SherpaRomeo {
   private $issn;
@@ -14,11 +14,13 @@ class SherpaRomeo {
     if ($sr_api_key){
       $query_string .= '&ak='.$sr_api_key;
     }
-    $client = new Zend_HTTP_Client();
+    
+    $client = new Zend\Http\Client();
     $client->setUri('http://www.sherpa.ac.uk/romeo/api29.php?'.$query_string);
-    $response = $client->request();
+	  echo 'http://www.sherpa.ac.uk/romeo/api29.php?'.$query_string. " ";
+    $response = $client->send();
 
-    if ($response->getStatus() == 200){
+    if ($response->getStatusCode() == 200){
       $sr = $response->getBody();
       $sr_xml = new DOMDocument();
       $sr_xml->loadXML($sr);
