@@ -16,4 +16,4 @@ arbitrarily nested json elements to cause the parent elements to be remove when 
 
 The provided (rather clunky) web interface expects a ` run_list.sh ` file to exist in the working directory of the application and is exicutable by the user that php runs as (normally the apache or nginx user). This file should contain one or more invocations of zotero_sherpa.php such as:
 
-` php zotero_sherpa [group/user id] [zotero key] [sherpa_romeo_key] [collection_type (user or group)] [limit] `
+` php zotero_sherpa.php [group/user id] [zotero key] [sherpa_romeo_key] [collection_type (user or group)] [limit] `
