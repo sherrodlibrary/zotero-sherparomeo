@@ -1,0 +1,4 @@
+<Files "run_list.sh">
+Order Allow,Deny
+Deny from all
+</Files>
