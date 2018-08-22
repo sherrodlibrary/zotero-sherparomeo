@@ -16,7 +16,7 @@ else if (isset($_GET['userid'])){
     $zotero_key = $_GET['zotero_key'];
     $sherpa_romeo_key = $_GET['sherpa_romeo_key'];
     $collection_type = $_GET['collection_type']; // 'group' or 'user'
-    $limit = $_GET['collection_type']; // limit to most recent
+    $limit = $_GET['limit']; // limit to most recent
   }
 else {
     echo "Not enough parameters\n";
