@@ -3,6 +3,61 @@
 require_once 'vendor/autoload.php';
 require_once('SherpaRomeo.php');
 
+function get_zotero_items($zotero_user, $zotero_key, $type, $limit, $iterate ) {
+    $url_base = "https://api.zotero.org/$type/$zotero_user";
+
+    $params = array(
+        'key' => $zotero_key,
+        'itemType' => 'journalArticle',
+        'content' => 'json', 
+        'limit' => $limit,
+        'sort' => 'dateModified'
+    );
+    
+    if (!$iterate) {
+        $response = do_request($url_base, $params);
+        return get_items_from_response($response);    
+    }
+
+    $items = array();
+    $page = 1;
+    do {
+        $params['start'] = ($page*$limit) + 1;
+        $response = do_request($url_base, $params);
+        $item_list = get_items_from_response($response);
+        $items = array_merge($items, iterator_to_array($item_list));
+
+        $page++;
+    } while ($item_list->length == $limit);
+    
+    return $items;
+}
+
+function do_request($url_base, $params) {
+
+    $client = new Zend\Http\Client();
+    $request_uri = "$url_base/items?" . http_build_query($params);
+    $client->setUri($request_uri);
+    $response = $client->send();
+
+    //echo $response->getBody();
+    if (200 != $response->getStatusCode()){
+        $status_code = $response->getStatusCode();
+        throw new Exception("Failed to get items ($status_code).");
+    }
+
+    return $response; 
+}
+
+function get_items_from_response($response) {
+    $items = $response->getBody();
+    $items_xml = new DOMDocument();
+    $items_xml->loadXML($items);
+    $item_list = $items_xml->getElementsByTagName('entry');
+
+    return $item_list;
+}
+
 if (( isset($argv[1])) && ( isset($argv[2]))){
   $userid = $argv[1];
   $zotero_key = $argv[2];
@@ -17,6 +72,7 @@ else if (isset($_GET['userid'])){
     $sherpa_romeo_key = $_GET['sherpa_romeo_key'];
     $collection_type = $_GET['collection_type']; // 'group' or 'user'
     $limit = $_GET['limit']; // limit to most recent
+    $iterate = isset($_GET['iterate']);
   }
 else {
     echo "Not enough parameters\n";
@@ -32,25 +88,17 @@ else{
   $type ='users';
 }
 
-$url_base = 'https://api.zotero.org/'.$type.'/'.$userid.'/';
-//$client = new Zend_HTTP_Client();
-$client = new Zend\Http\Client();
-
-$client->setUri($url_base.'items/?key='.$zotero_key.'&itemType=journalArticle&content=json&limit='.$limit.'&sort=dateModified');
-//$response = $client->request();
-$response = $client->send();
-
-//echo $response->getBody();
-if (200 != $response->getStatusCode()){
-  echo "Failed to get items (".$response->getStatusCode().")\n";
-  exit;
+$item_list = array();
+try {
+    $item_list = get_zotero_items($userid, $zotero_key, $type, $limit, $iterate );
 }
-// prints a nice list of updated items like an rss feed
-//echo print_r($response->getBody());
-$items = $response->getBody();
-$items_xml = new DOMDocument();
-$items_xml->loadXML($items);
-$item_list = $items_xml->getElementsByTagName('entry');
+catch (Exception $e) {
+    echo $e->getMessage();
+    exit;
+}
+
+var_dump($item_list);
+die();
 $sr_responses = array();
 
 foreach ($item_list as $item){
@@ -105,7 +153,8 @@ foreach ($item_list as $item){
 	  
 		
 	  }
-
+      $url_base = 'https://api.zotero.org/'.$type.'/'.$userid.'/';
+      $client = new Zend\Http\Client();
       $client->setUri($url_base.'items/'.$item_key.'?key='.$zotero_key);
       $client->setHeaders([
       'Content-Type' => 'application/json',
