@@ -63,7 +63,8 @@ if (( isset($argv[1])) && ( isset($argv[2]))){
   $zotero_key = $argv[2];
   $sherpa_romeo_key = $argv[3];
   $collection_type = $argv[4];
-  $limit = $argv[5];
+  $limit = isset($argv[5]) && !empty($argv[5]) ? $argv[5] : 25;
+  $iterate = isset($argv[6]);
 
 }
 else if (isset($_GET['userid'])){
@@ -71,7 +72,7 @@ else if (isset($_GET['userid'])){
     $zotero_key = $_GET['zotero_key'];
     $sherpa_romeo_key = $_GET['sherpa_romeo_key'];
     $collection_type = $_GET['collection_type']; // 'group' or 'user'
-    $limit = $_GET['limit']; // limit to most recent
+    $limit = isset($_GET['limit']) && !empty($_GET['limit']) ? $_GET['limit'] : 25; // limit to most recent, set to 25 by default.
     $iterate = isset($_GET['iterate']);
   }
 else {
@@ -177,7 +178,7 @@ foreach ($item_list as $item){
 
 function usage(){
   echo "\n";
-  echo "zotero_sherpa.pbp [zotero_user] [zotero_key] [sherpa_romeo_key] [collection_type (user/group)] [limit (update most recent)]";
+  echo "zotero_sherpa.pbp [zotero_user] [zotero_key] [sherpa_romeo_key] [collection_type (user/group)] [limit (update most recent)] [iterate]";
   echo "\n";
 }
 
