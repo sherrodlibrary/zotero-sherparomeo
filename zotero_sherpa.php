@@ -97,8 +97,6 @@ catch (Exception $e) {
     exit;
 }
 
-var_dump($item_list);
-die();
 $sr_responses = array();
 
 foreach ($item_list as $item){
